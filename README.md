@@ -38,3 +38,5 @@ void somethingProbablyUnsafe(ThreadingLock* lock)
 }
  ```
  Scoped thread locks are of course only an example. The template can be used with any kind of scoped object that may or may not be required.
+ 
+*All this almost let forget you about the simple solution: Your scoped object should take a pointer and it should handle null.* (yeah, I forgot about that myself when I had this whole idea, thank you for pointing that out to me @ Christopher)
