@@ -1,13 +1,16 @@
 #pragma once
 
+// Class wrapper to provide an optional scoped object on the stack without any dynamic allocations.
 template<typename ScopedObject>
 class OptionalScopedObject
 {
 public:
+	// Creates a new inactive object. The underlying ScopedObject type is not initialized!
 	OptionalScopedObject() : m_active(false)
 	{
 	}
 
+	// If the underlying ScopedObject was created via construct, it will be deconstructed.
 	~OptionalScopedObject()
 	{
 		destruct();
@@ -16,14 +19,19 @@ public:
 	OptionalScopedObject(OptionalScopedObject&) = delete;
 	void operator = (OptionalScopedObject&) = delete;
 
+	// Constructs the object. Will destruct the object first if there was already one.
 	template<typename... Args>
 	void construct(Args... args)
 	{
-		destruct();
+		if (m_active)
+		{
+			(*this)->~ScopedObject();
+		}
 		new (m_memory) ScopedObject(args...);
 		m_active = true;
 	}
 
+	// Destructs the underlying object if one has been previously constructed.
 	void destruct()
 	{
 		if (m_active)
@@ -52,7 +60,7 @@ public:
 		return *reinterpret_cast<ScopedObject*>(m_memory);
 	}
 
-	// Weather the underlyting object is constructed or not.
+	// Weather the underlying object is constructed or not.
 	operator bool() const
 	{
 		return m_active;
